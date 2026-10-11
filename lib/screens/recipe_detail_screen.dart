@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
+import '../providers/shopping_list_provider.dart';
 import '../models/recipe.dart';
 import '../models/review.dart';
 import '../database/database_helper.dart';
@@ -8,6 +9,7 @@ import 'recipe_edit_screen.dart';
 import 'cooking_mode_screen.dart';
 import 'cooking_logs_screen.dart';
 import 'review_write_screen.dart';
+import 'shopping_list_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final String recipeId;
@@ -48,6 +50,27 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     if (recipe == null) return;
     await context.read<RecipeProvider>().toggleFavorite(recipe);
     await _loadRecipe();
+  }
+
+  Future<void> _addIngredientsToShoppingList() async {
+    final recipe = _recipe;
+    if (recipe == null) return;
+    await context.read<ShoppingListProvider>().addIngredientsFromRecipe(recipe);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('재료를 장보기 목록에 추가했습니다'),
+        action: SnackBarAction(
+          label: '보기',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ShoppingListScreen()),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void _deleteRecipe() {
@@ -350,7 +373,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
             // 재료
             if (_recipe!.ingredients.isNotEmpty) ...[
-              _buildSectionTitle('Ingredients'),
+              Row(
+                children: [
+                  Expanded(child: _buildSectionTitle('Ingredients')),
+                  TextButton.icon(
+                    onPressed: _addIngredientsToShoppingList,
+                    icon: const Icon(Icons.add_shopping_cart_outlined, size: 18),
+                    label: const Text('장보기 목록에 추가'),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               ..._recipe!.ingredients.map((ingredient) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),

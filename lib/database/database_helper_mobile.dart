@@ -5,6 +5,7 @@ import '../models/cooking_log.dart';
 import '../models/ingredient_alias.dart';
 import '../models/recipe.dart';
 import '../models/review.dart';
+import '../models/shopping_list_item.dart';
 
 dynamic createDatabaseBackend() => MobileDatabaseHelper.instance;
 
@@ -31,7 +32,7 @@ class MobileDatabaseHelper {
 
     return openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -83,6 +84,7 @@ class MobileDatabaseHelper {
 
     await _createCookingLogsTable(db);
     await _createReviewsTable(db);
+    await _createShoppingListTable(db);
     await _createIndexes(db);
 
     await db.execute('''
@@ -92,7 +94,7 @@ class MobileDatabaseHelper {
       )
     ''');
 
-    await db.insert('meta', {'key': 'schemaVersion', 'value': '5'});
+    await db.insert('meta', {'key': 'schemaVersion', 'value': '6'});
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -105,13 +107,16 @@ class MobileDatabaseHelper {
     if (oldVersion < 5) {
       await _upgradeRecipesToV5(db);
     }
+    if (oldVersion < 6) {
+      await _createShoppingListTable(db);
+    }
     if (oldVersion < 3) {
       await _createIndexes(db);
     }
     await _createIndexes(db);
     await db.insert(
       'meta',
-      {'key': 'schemaVersion', 'value': '5'},
+      {'key': 'schemaVersion', 'value': '6'},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -146,6 +151,19 @@ class MobileDatabaseHelper {
     ''');
   }
 
+  Future<void> _createShoppingListTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS shopping_list_items (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        isChecked INTEGER DEFAULT 0,
+        recipeId TEXT,
+        recipeName TEXT,
+        createdAt INTEGER NOT NULL
+      )
+    ''');
+  }
+
   Future<void> _upgradeRecipesToV5(Database db) async {
     final columns = await db.rawQuery('PRAGMA table_info(recipes)');
     final existing = columns.map((column) => column['name'] as String).toSet();
@@ -174,6 +192,7 @@ class MobileDatabaseHelper {
     await db.execute('CREATE INDEX IF NOT EXISTS idx_reviews_createdAt ON reviews(createdAt DESC)');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_aliases_canonical ON ingredient_aliases(canonical)');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_aliases_alias ON ingredient_aliases(alias)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_shopping_list_createdAt ON shopping_list_items(createdAt ASC)');
   }
 
   Future<String> createRecipe(Recipe recipe) async {
@@ -405,22 +424,56 @@ class MobileDatabaseHelper {
     return db.delete('reviews', where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<String> createShoppingListItem(ShoppingListItem item) async {
+    final db = await database;
+    await db.insert('shopping_list_items', item.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return item.id;
+  }
+
+  Future<List<ShoppingListItem>> getAllShoppingListItems() async {
+    final db = await database;
+    final maps = await db.query('shopping_list_items', orderBy: 'createdAt ASC');
+    return maps.map((map) => ShoppingListItem.fromMap(map)).toList();
+  }
+
+  Future<int> updateShoppingListItem(ShoppingListItem item) async {
+    final db = await database;
+    return db.update('shopping_list_items', item.toMap(), where: 'id = ?', whereArgs: [item.id]);
+  }
+
+  Future<int> deleteShoppingListItem(String id) async {
+    final db = await database;
+    return db.delete('shopping_list_items', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> clearCheckedShoppingListItems() async {
+    final db = await database;
+    await db.delete('shopping_list_items', where: 'isChecked = ?', whereArgs: [1]);
+  }
+
+  Future<void> clearAllShoppingListItems() async {
+    final db = await database;
+    await db.delete('shopping_list_items');
+  }
+
   Future<Map<String, dynamic>> exportData() async {
     final recipes = await getAllRecipes();
     final aliases = await getAllIngredientAliases();
     final cookingLogs = await getAllCookingLogs();
     final reviews = await getAllReviews();
+    final shoppingList = await getAllShoppingListItems();
 
     return {
       'meta': {
-        'version': '1.1.0',
-        'schemaVersion': 5,
+        'version': '1.3.0',
+        'schemaVersion': 6,
         'exportedAt': DateTime.now().millisecondsSinceEpoch,
       },
       'recipes': recipes.map((r) => r.toJson()).toList(),
       'ingredientAliases': aliases.map((a) => a.toJson()).toList(),
       'cookingLogs': cookingLogs.map((l) => l.toJson()).toList(),
       'reviews': reviews.map((r) => r.toJson()).toList(),
+      'shoppingList': shoppingList.map((i) => i.toJson()).toList(),
     };
   }
 
@@ -455,6 +508,13 @@ class MobileDatabaseHelper {
           await txn.insert('reviews', review.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
         }
       }
+
+      if (data['shoppingList'] != null) {
+        for (final itemJson in data['shoppingList'] as List) {
+          final item = ShoppingListItem.fromJson(itemJson as Map<String, dynamic>);
+          await txn.insert('shopping_list_items', item.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
     });
   }
 
@@ -465,10 +525,11 @@ class MobileDatabaseHelper {
       await txn.delete('cooking_logs');
       await txn.delete('reviews');
       await txn.delete('ingredient_aliases');
+      await txn.delete('shopping_list_items');
       await txn.delete('recipes');
       await txn.insert(
         'meta',
-        {'key': 'schemaVersion', 'value': '5'},
+        {'key': 'schemaVersion', 'value': '6'},
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });

@@ -12,7 +12,8 @@ A personal offline recipe manager built with Flutter. 📱 Create, search, and t
 - **Favorites & Reviews**: Star your favorite recipes and leave reviews with ratings
 - **Ingredient Aliases**: Map ingredient names (e.g., "salt" / "소금") for better search results
 - **Recipe Packs**: Import pre-made recipe collections
-- **Backup & Restore**: Export/import recipes as JSON files
+- **Shopping List**: Add a recipe's ingredients to a shopping list with one tap, or add custom items; check items off as you shop
+- **Backup & Restore**: Export/import recipes (including the shopping list) as JSON files
 - **Responsive Design**: Works on Android, iOS, macOS, Windows, Linux, and Web
 - **Customizable Appearance**: Choose from 3 color palettes (Warm Brown, Cool Blue, Teal Green) + Dark Mode support
 - **Google Fonts**: Beautiful typography with Inter font family
@@ -26,6 +27,14 @@ A personal offline recipe manager built with Flutter. 📱 Create, search, and t
 - Mobile storage: SQLite via sqflite
 - Firebase: intentionally removed
 - Future hosting target: Cloudflare Pages for the Flutter web build
+
+## Version 1.3.0 (Shopping List)
+
+- **Shopping List**: New `ShoppingListItem` model, persisted in SQLite (mobile) / LocalStorage (web), same offline-first pattern as cooking logs and reviews.
+- Add a recipe's ingredients to the list in one tap from its detail screen (`Ingredients` section → `장보기 목록에 추가`), or add custom items directly on the list screen.
+- Check items off while shopping, clear completed items in bulk, or delete items one by one.
+- Included in JSON backup/restore and in "Reset All Data".
+- Reachable from Home's quick actions and from Settings → Data Management.
 
 ## Version 1.2.0 (Design & Theme Update)
 
@@ -157,7 +166,6 @@ Alternatively, build locally and upload `build/web` directly if Cloudflare build
 
 - Cross-device sync via Cloudflare Workers + D1
 - Ingredient statistics and nutrition tracking
-- Shopping list feature
 - Advanced recipe filtering and sorting options
 - Recipe images stored on Cloudflare R2
 - User accounts and cloud backup (optional)

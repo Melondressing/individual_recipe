@@ -13,6 +13,7 @@ import '../theme/app_theme.dart';
 import 'alias_management_screen.dart';
 import 'cooking_logs_screen.dart';
 import 'recipe_pack_import_screen.dart';
+import 'shopping_list_screen.dart';
 import 'storage_test_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -111,7 +112,7 @@ class SettingsScreen extends StatelessWidget {
         return AlertDialog(
           title: const Text('Reset All Data'),
           content: const Text(
-            'This will delete all recipes, aliases, and cooking logs. This action cannot be undone. Continue?',
+            'This will delete all recipes, aliases, cooking logs, reviews, and your shopping list. This action cannot be undone. Continue?',
           ),
           actions: [
             TextButton(
@@ -177,6 +178,18 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart_outlined),
+            title: const Text('장보기 목록'),
+            subtitle: const Text('재료 쇼핑 리스트 관리'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ShoppingListScreen()),
+              );
+            },
+          ),
           if (kIsWeb)
             ListTile(
               leading: const Icon(Icons.bug_report),
@@ -193,7 +206,7 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.file_upload),
             title: const Text('Export Backup'),
-            subtitle: const Text('Save recipes, aliases, cooking logs, and reviews as JSON'),
+            subtitle: const Text('Save recipes, aliases, cooking logs, reviews, and shopping list as JSON'),
             onTap: () => _exportData(context),
           ),
           ListTile(
@@ -253,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.info),
             title: Text('Version'),
-            subtitle: Text('1.1.0 Structured recipes'),
+            subtitle: Text('1.3.0 Shopping list'),
           ),
           const ListTile(
             leading: Icon(Icons.description),

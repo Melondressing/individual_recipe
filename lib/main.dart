@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/recipe_provider.dart';
 import 'providers/alias_provider.dart';
+import 'providers/shopping_list_provider.dart';
 import 'screens/main_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -54,6 +55,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => RecipeProvider()..loadAllData()),
         ChangeNotifierProvider(create: (_) => AliasProvider()..loadAliases()),
+        ChangeNotifierProvider(create: (_) => ShoppingListProvider()..loadItems()),
       ],
       child: MaterialApp(
         title: 'Individual Recipe',

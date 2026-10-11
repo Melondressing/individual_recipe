@@ -2,6 +2,7 @@ import '../models/recipe.dart';
 import '../models/ingredient_alias.dart';
 import '../models/cooking_log.dart';
 import '../models/review.dart';
+import '../models/shopping_list_item.dart';
 import 'database_helper_platform_stub.dart'
     if (dart.library.html) 'web_database_helper.dart'
     if (dart.library.io) 'database_helper_mobile.dart';
@@ -121,6 +122,32 @@ class DatabaseHelper {
 
   Future<int> deleteReview(String id) async {
     return await _db.deleteReview(id);
+  }
+
+  // ==================== Shopping List CRUD ====================
+
+  Future<String> createShoppingListItem(ShoppingListItem item) async {
+    return await _db.createShoppingListItem(item);
+  }
+
+  Future<List<ShoppingListItem>> getAllShoppingListItems() async {
+    return await _db.getAllShoppingListItems();
+  }
+
+  Future<int> updateShoppingListItem(ShoppingListItem item) async {
+    return await _db.updateShoppingListItem(item);
+  }
+
+  Future<int> deleteShoppingListItem(String id) async {
+    return await _db.deleteShoppingListItem(id);
+  }
+
+  Future<void> clearCheckedShoppingListItems() async {
+    return await _db.clearCheckedShoppingListItems();
+  }
+
+  Future<void> clearAllShoppingListItems() async {
+    return await _db.clearAllShoppingListItems();
   }
 
   // ==================== Backup / Restore / Reset ====================

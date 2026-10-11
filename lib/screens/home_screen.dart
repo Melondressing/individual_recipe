@@ -6,6 +6,7 @@ import 'cooking_logs_screen.dart';
 import 'recipe_edit_screen.dart';
 import 'recipe_detail_screen.dart';
 import 'recipe_pack_import_screen.dart';
+import 'shopping_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onOpenSearch;
@@ -177,6 +178,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CookingLogsScreen()),
+            );
+          },
+        ),
+        ActionChip(
+          avatar: const Icon(Icons.shopping_cart_outlined, size: 18),
+          label: const Text('장보기 목록'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ShoppingListScreen()),
             );
           },
         ),

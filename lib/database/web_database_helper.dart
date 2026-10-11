@@ -9,6 +9,7 @@ import '../models/cooking_log.dart';
 import '../models/ingredient_alias.dart';
 import '../models/recipe.dart';
 import '../models/review.dart';
+import '../models/shopping_list_item.dart';
 
 dynamic createDatabaseBackend() => WebDatabaseHelper.instance;
 
@@ -29,6 +30,7 @@ class WebDatabaseHelper {
   static const String _usageLogKey = 'flutter.individual_recipe.usage_log';
   static const String _cookingLogsKey = 'flutter.individual_recipe.cooking_logs';
   static const String _reviewsKey = 'flutter.individual_recipe.reviews';
+  static const String _shoppingListKey = 'flutter.individual_recipe.shopping_list';
 
   static const String _legacyRecipesKey = 'flutter.recipe_keeper.recipes';
   static const String _legacyAliasesKey = 'flutter.recipe_keeper.aliases';
@@ -315,22 +317,69 @@ class WebDatabaseHelper {
     return reviews.length == originalLength ? 0 : 1;
   }
 
+  Future<String> createShoppingListItem(ShoppingListItem item) async {
+    final items = await getAllShoppingListItems();
+    final index = items.indexWhere((i) => i.id == item.id);
+    if (index >= 0) {
+      items[index] = item;
+    } else {
+      items.add(item);
+    }
+    _writeList<ShoppingListItem>(_shoppingListKey, items, (item) => item.toJson());
+    return item.id;
+  }
+
+  Future<List<ShoppingListItem>> getAllShoppingListItems() async {
+    final items = _readList<ShoppingListItem>(_shoppingListKey, ShoppingListItem.fromJson)
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return items;
+  }
+
+  Future<int> updateShoppingListItem(ShoppingListItem item) async {
+    final items = await getAllShoppingListItems();
+    final index = items.indexWhere((i) => i.id == item.id);
+    if (index < 0) return 0;
+    items[index] = item;
+    _writeList<ShoppingListItem>(_shoppingListKey, items, (item) => item.toJson());
+    return 1;
+  }
+
+  Future<int> deleteShoppingListItem(String id) async {
+    final items = await getAllShoppingListItems();
+    final originalLength = items.length;
+    items.removeWhere((item) => item.id == id);
+    _writeList<ShoppingListItem>(_shoppingListKey, items, (item) => item.toJson());
+    return items.length == originalLength ? 0 : 1;
+  }
+
+  Future<void> clearCheckedShoppingListItems() async {
+    final items = await getAllShoppingListItems();
+    items.removeWhere((item) => item.isChecked);
+    _writeList<ShoppingListItem>(_shoppingListKey, items, (item) => item.toJson());
+  }
+
+  Future<void> clearAllShoppingListItems() async {
+    _storage.remove(_shoppingListKey);
+  }
+
   Future<Map<String, dynamic>> exportData() async {
     final recipes = await getAllRecipes();
     final aliases = await getAllIngredientAliases();
     final cookingLogs = await getAllCookingLogs();
     final reviews = await getAllReviews();
+    final shoppingList = await getAllShoppingListItems();
 
     return {
       'meta': {
-        'version': '1.1.0',
-        'schemaVersion': 5,
+        'version': '1.3.0',
+        'schemaVersion': 6,
         'exportedAt': DateTime.now().millisecondsSinceEpoch,
       },
       'recipes': recipes.map((r) => r.toJson()).toList(),
       'ingredientAliases': aliases.map((a) => a.toJson()).toList(),
       'cookingLogs': cookingLogs.map((l) => l.toJson()).toList(),
       'reviews': reviews.map((r) => r.toJson()).toList(),
+      'shoppingList': shoppingList.map((i) => i.toJson()).toList(),
     };
   }
 
@@ -374,6 +423,16 @@ class WebDatabaseHelper {
       }
       _writeList<Review>(_reviewsKey, reviews, (review) => review.toJson());
     }
+
+    if (data['shoppingList'] != null) {
+      final items = await getAllShoppingListItems();
+      for (final item in data['shoppingList'] as List) {
+        final shoppingItem = ShoppingListItem.fromJson(item as Map<String, dynamic>);
+        items.removeWhere((i) => i.id == shoppingItem.id);
+        items.add(shoppingItem);
+      }
+      _writeList<ShoppingListItem>(_shoppingListKey, items, (item) => item.toJson());
+    }
   }
 
   Future<void> clearAll() async {
@@ -382,6 +441,7 @@ class WebDatabaseHelper {
     _storage.remove(_usageLogKey);
     _storage.remove(_cookingLogsKey);
     _storage.remove(_reviewsKey);
+    _storage.remove(_shoppingListKey);
     if (kDebugMode) debugPrint('🗑️ [Web DB] All data cleared');
   }
 
