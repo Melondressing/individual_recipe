@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
+import '../theme/app_theme.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -53,7 +54,7 @@ class RecipeCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -107,7 +108,7 @@ class RecipeCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(AppTheme.chipRadius),
                       ),
                       child: Text(
                         recipe.categories.first,

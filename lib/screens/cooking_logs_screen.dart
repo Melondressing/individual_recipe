@@ -99,8 +99,6 @@ class _CookingLogsScreenState extends State<CookingLogsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.recipeId != null ? '조리 기록' : '전체 조리 기록'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -201,19 +199,20 @@ class _CookingLogsScreenState extends State<CookingLogsScreen> {
                 spacing: 8,
                 runSpacing: 8,
                 children: log.tags.map((tag) {
+                  final colorScheme = Theme.of(context).colorScheme;
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: colorScheme.primary,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       tag,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colorScheme.onPrimary,
                         fontSize: 12,
                       ),
                     ),

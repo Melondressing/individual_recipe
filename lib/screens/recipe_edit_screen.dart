@@ -345,13 +345,16 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
           runSpacing: 8,
           children: options.map((value) {
             final selected = selectedValues.contains(value);
+            final colorScheme = Theme.of(context).colorScheme;
             return FilterChip(
               label: Text(value),
               selected: selected,
               onSelected: (_) => onToggle(value),
-              selectedColor: Colors.black,
-              checkmarkColor: Colors.white,
-              labelStyle: TextStyle(color: selected ? Colors.white : Colors.black),
+              selectedColor: colorScheme.primary,
+              checkmarkColor: colorScheme.onPrimary,
+              labelStyle: TextStyle(
+                color: selected ? colorScheme.onPrimary : colorScheme.onSurface,
+              ),
             );
           }).toList(),
         ),
@@ -582,7 +585,6 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _isSaving ? null : _saveRecipe,
-                  style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
                   child: Text(_isSaving ? 'Saving...' : 'Save Recipe'),
                 ),
               ),

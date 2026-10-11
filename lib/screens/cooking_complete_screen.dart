@@ -173,8 +173,6 @@ class _CookingCompleteScreenState extends State<CookingCompleteScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cooking Complete'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -229,9 +227,13 @@ class _CookingCompleteScreenState extends State<CookingCompleteScreen> {
                       }
                     });
                   },
-                  selectedColor: Colors.black,
-                  checkmarkColor: Colors.white,
-                  labelStyle: TextStyle(color: selected ? Colors.white : Colors.black),
+                  selectedColor: Theme.of(context).colorScheme.primary,
+                  checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+                  labelStyle: TextStyle(
+                    color: selected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
                 );
               }).toList(),
             ),
@@ -307,10 +309,6 @@ class _CookingCompleteScreenState extends State<CookingCompleteScreen> {
                     )
                   : const Icon(Icons.save),
               label: Text(_isSaving ? 'Saving...' : 'Save Cooking Log'),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.all(16),
-              ),
             ),
           ],
         ),

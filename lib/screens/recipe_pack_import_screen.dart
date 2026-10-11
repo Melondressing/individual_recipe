@@ -6,6 +6,7 @@ import '../database/database_helper.dart';
 import '../models/recipe_pack.dart';
 import '../providers/alias_provider.dart';
 import '../providers/recipe_provider.dart';
+import '../theme/app_theme.dart';
 
 class RecipePackImportScreen extends StatefulWidget {
   const RecipePackImportScreen({super.key});
@@ -132,20 +133,23 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
               itemBuilder: (context, index) {
                 final pack = RecipePacks.allPacks[index];
                 final isSelected = _selectedPacks.contains(pack.id);
+                final colorScheme = Theme.of(context).colorScheme;
+                final onSelectedColor = colorScheme.onPrimary;
+                final onSurfaceColor = colorScheme.onSurface;
 
                 return Card(
                   elevation: 0,
-                  color: isSelected ? Colors.black : Colors.white,
+                  color: isSelected ? colorScheme.primary : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppTheme.cardRadius),
                     side: BorderSide(
-                      color: isSelected ? Colors.black : const Color(0xFFE0E0E0),
+                      color: isSelected ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.12),
                       width: isSelected ? 2 : 1,
                     ),
                   ),
                   child: InkWell(
                     onTap: () => _togglePack(pack.id, !isSelected),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppTheme.cardRadius),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -156,8 +160,8 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
                               Checkbox(
                                 value: isSelected,
                                 onChanged: (value) => _togglePack(pack.id, value ?? false),
-                                activeColor: Colors.black,
-                                checkColor: Colors.white,
+                                activeColor: colorScheme.primary,
+                                checkColor: onSelectedColor,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -166,7 +170,7 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : Colors.black,
+                                    color: isSelected ? onSelectedColor : onSurfaceColor,
                                   ),
                                 ),
                               ),
@@ -183,8 +187,8 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: isSelected
-                                        ? Colors.white.withValues(alpha: 0.8)
-                                        : Colors.grey.shade600,
+                                        ? onSelectedColor.withValues(alpha: 0.8)
+                                        : onSurfaceColor.withValues(alpha: 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -192,9 +196,9 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
                                   spacing: 8,
                                   runSpacing: 4,
                                   children: [
-                                    _buildInfoChip('${pack.recipes.length} recipes', isSelected),
+                                    _buildInfoChip(context, '${pack.recipes.length} recipes', isSelected),
                                     if (pack.aliases.isNotEmpty)
-                                      _buildInfoChip('${pack.aliases.length} aliases', isSelected),
+                                      _buildInfoChip(context, '${pack.aliases.length} aliases', isSelected),
                                   ],
                                 ),
                               ],
@@ -210,18 +214,21 @@ class _RecipePackImportScreenState extends State<RecipePackImportScreen> {
     );
   }
 
-  Widget _buildInfoChip(String label, bool isSelected) {
+  Widget _buildInfoChip(BuildContext context, String label, bool isSelected) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.white.withValues(alpha: 0.2) : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(4),
+        color: isSelected
+            ? colorScheme.onPrimary.withValues(alpha: 0.2)
+            : colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppTheme.chipRadius),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 12,
-          color: isSelected ? Colors.white : Colors.grey.shade700,
+          color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
         ),
       ),
     );

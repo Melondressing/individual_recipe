@@ -98,7 +98,7 @@ class _AliasManagementScreenState extends State<AliasManagementScreen> {
                 Navigator.pop(dialogContext);
                 await provider.deleteAlias(alias.id);
               },
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(dialogContext).colorScheme.error),
               child: const Text('Delete'),
             ),
           ],

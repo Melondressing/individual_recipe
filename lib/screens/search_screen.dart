@@ -185,19 +185,19 @@ class _CuisineChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FilterChip(
       label: Text(
         '$label ($count)',
         style: TextStyle(
-          color: selected ? Colors.white : Colors.black,
+          color: selected ? colorScheme.onPrimary : colorScheme.onSurface,
           fontSize: 13,
         ),
       ),
       selected: selected,
       onSelected: (_) => onSelected(value),
-      backgroundColor: Colors.grey[200],
-      selectedColor: Colors.black,
-      checkmarkColor: Colors.white,
+      selectedColor: colorScheme.primary,
+      checkmarkColor: colorScheme.onPrimary,
     );
   }
 }

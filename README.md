@@ -34,6 +34,9 @@ A personal offline recipe manager built with Flutter. 📱 Create, search, and t
 - **Google Fonts Integration**: Improved typography with Inter font family
 - **Enhanced UI Design**: Improved spacing, card designs, and visual consistency
 - **Settings Panel**: Easy theme customization from Settings screen
+- **Centralized theme system**: All theming now lives in `lib/theme/app_theme.dart`. Each palette's `ColorScheme` is built with `ColorScheme.fromSeed`, so every Material 3 component (bottom navigation indicator, switches, chips, etc.) picks up a color harmonized with the chosen palette instead of Flutter's default purple.
+- **Consistent, simple buttons**: `FilledButton`, `OutlinedButton`, `ElevatedButton`, and `TextButton` now share one radius/padding/elevation style from the theme, instead of each screen defining its own. Several screens had buttons and tag/category chips hardcoded to black/white regardless of the selected palette or dark mode (Start Cooking, Save Review, Save Cooking Log, tag chips in search/edit/cooking-log/recipe-pack screens) — these now follow the active color palette correctly.
+- **Shared design tokens**: card/button/input/chip/dialog corner radius and button padding are defined once in `AppTheme` and reused across screens for a cleaner, more uniform look.
 
 ## Version 1.1.0 (Previous release)
 
@@ -148,6 +151,7 @@ Alternatively, build locally and upload `build/web` directly if Cloudflare build
 - `lib/models/`: Data classes (Recipe, RecipeHistory, Review, etc.)
 - `lib/database/`: Database layer with platform-specific implementations
 - `lib/widgets/`: Reusable UI components
+- `lib/theme/`: `AppTheme` — color palettes, light/dark `ThemeData`, and shared design tokens (radius, button padding)
 
 ## Future Enhancements
 

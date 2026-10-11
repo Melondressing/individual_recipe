@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
 import '../providers/alias_provider.dart';
 import '../providers/recipe_provider.dart';
+import '../theme/app_theme.dart';
 import 'alias_management_screen.dart';
 import 'cooking_logs_screen.dart';
 import 'recipe_pack_import_screen.dart';
@@ -135,7 +136,7 @@ class SettingsScreen extends StatelessWidget {
                   );
                 }
               },
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
               child: const Text('Reset'),
             ),
           ],
@@ -226,9 +227,8 @@ class SettingsScreen extends StatelessWidget {
             child: Wrap(
               spacing: 8,
               children: [
-                _buildPaletteButton(context, 'A', 'Warm Brown', const Color(0xFF6B4C3A)),
-                _buildPaletteButton(context, 'B', 'Cool Blue', const Color(0xFF2C3E50)),
-                _buildPaletteButton(context, 'C', 'Teal Green', const Color(0xFF1B5E4F)),
+                for (final id in AppTheme.paletteIds)
+                  _buildPaletteButton(context, id, AppTheme.paletteLabel(id), AppTheme.paletteSwatch(id)),
               ],
             ),
           ),
@@ -286,7 +286,7 @@ class SettingsScreen extends StatelessWidget {
             color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.withOpacity(0.3),
             width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppTheme.chipRadius),
           color: isSelected ? color.withOpacity(0.1) : null,
         ),
         child: Column(
@@ -323,7 +323,7 @@ class SettingsScreen extends StatelessWidget {
             color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.withOpacity(0.3),
             width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppTheme.chipRadius),
           color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : null,
         ),
         child: Column(

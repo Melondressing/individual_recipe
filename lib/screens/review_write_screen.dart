@@ -123,10 +123,6 @@ class _ReviewWriteScreenState extends State<ReviewWriteScreen> {
                 onPressed: _submit,
                 icon: const Icon(Icons.save),
                 label: const Text('Save Review'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.all(16),
-                ),
               ),
             ],
           ),

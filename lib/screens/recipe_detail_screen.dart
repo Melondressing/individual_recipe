@@ -70,7 +70,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 if (!mounted) return;
                 Navigator.pop(this.context); // Close detail screen
               },
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
               child: const Text('Delete'),
             ),
           ],
@@ -498,9 +498,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   onPressed: _viewCookingLogs,
                   icon: const Icon(Icons.history),
                   label: const Text('조리 기록'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -510,10 +507,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   onPressed: _recipe!.steps.isEmpty ? null : _startCooking,
                   icon: const Icon(Icons.restaurant_menu),
                   label: const Text('Start Cooking'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                    backgroundColor: Colors.black,
-                  ),
                 ),
               ),
             ],
