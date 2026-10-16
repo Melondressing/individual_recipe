@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: columns == 4 ? 1.55 : 1.8,
+          childAspectRatio: columns == 4 ? 1.4 : 1.55,
           children: [
             _StatTile(
               icon: Icons.menu_book_outlined,

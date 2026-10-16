@@ -245,11 +245,18 @@ class _SortChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final selected = selectedSort == value;
     return ChoiceChip(
-      label: Text(label),
-      selected: selectedSort == value,
-      onSelected: (selected) {
-        if (selected) onSelected(value);
+      label: Text(
+        label,
+        style: TextStyle(color: selected ? colorScheme.onPrimary : colorScheme.primary),
+      ),
+      selected: selected,
+      selectedColor: colorScheme.primary,
+      checkmarkColor: colorScheme.onPrimary,
+      onSelected: (isSelected) {
+        if (isSelected) onSelected(value);
       },
     );
   }

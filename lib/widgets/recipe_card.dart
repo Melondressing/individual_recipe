@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
+import 'difficulty_badge.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -13,41 +14,6 @@ class RecipeCard extends StatelessWidget {
     required this.onTap,
     this.showCookCount = false,
   });
-
-  IconData _getEffortIcon() {
-    switch (recipe.effortLevel) {
-      case 1:
-        return Icons.looks_one;
-      case 2:
-        return Icons.looks_two;
-      case 3:
-        return Icons.looks_3;
-      case 4:
-        return Icons.looks_4;
-      case 5:
-        return Icons.looks_5;
-      default:
-        return Icons.looks_3;
-    }
-  }
-
-  Color _getEffortColor(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    switch (recipe.effortLevel) {
-      case 1:
-        return primary.withOpacity(0.3);
-      case 2:
-        return primary.withOpacity(0.45);
-      case 3:
-        return primary.withOpacity(0.6);
-      case 4:
-        return primary.withOpacity(0.8);
-      case 5:
-        return primary;
-      default:
-        return primary.withOpacity(0.6);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,19 +31,18 @@ class RecipeCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       recipe.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  if (recipe.isFavorite)
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
-                  const SizedBox(width: 4),
-                  Icon(
-                    _getEffortIcon(),
-                    color: _getEffortColor(context),
-                    size: 20,
-                  ),
+                  if (recipe.isFavorite) ...[
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
+                    const SizedBox(width: 6),
+                  ],
+                  DifficultyBadge(effortLevel: recipe.effortLevel, showLabel: false),
                 ],
               ),
               if (recipe.description.trim().isNotEmpty) ...[

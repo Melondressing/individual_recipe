@@ -10,6 +10,8 @@ import 'cooking_mode_screen.dart';
 import 'cooking_logs_screen.dart';
 import 'review_write_screen.dart';
 import 'shopping_list_screen.dart';
+import '../theme/app_theme.dart';
+import '../widgets/difficulty_badge.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final String recipeId;
@@ -344,8 +346,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 기본 정보
-            _buildInfoChips(),
+            // 메타 정보: 요리 · 조리법 · 난이도 · 시간/인분 · 조리 횟수
+            _buildMetaLine(),
+
+            if (_recipe!.categories.isNotEmpty || _recipe!.tags.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              _buildTagSection(),
+            ],
 
             if (_recipe!.description.trim().isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -362,11 +369,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   style: const TextStyle(height: 1.45),
                 ),
               ),
-            ],
-
-            if (_recipe!.cookingMethods.isNotEmpty || _recipe!.hasTiming || _recipe!.hasServings) ...[
-              const SizedBox(height: 16),
-              _buildMethodSummary(),
             ],
 
             const SizedBox(height: 24),
@@ -557,101 +559,137 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  Widget _buildMethodSummary() {
-    final items = <Widget>[];
+  /// One scannable line: cuisine · cooking method(s) · difficulty · time/servings · cook count.
+  /// Replaces the old wall of ~9 same-weight chips, and the Method/Time/Yield
+  /// boxes that repeated the same cooking-method, timing and servings info.
+  Widget _buildMetaLine() {
+    final recipe = _recipe!;
+    final metaTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+        );
 
-    if (_recipe!.cookingMethods.isNotEmpty) {
-      items.add(_summaryTile(Icons.restaurant_menu, 'Method', _recipe!.methodLabel));
-    }
-    if (_recipe!.hasTiming) {
-      items.add(_summaryTile(Icons.timer_outlined, 'Time', _recipe!.timingLabel));
-    }
-    if (_recipe!.hasServings) {
-      items.add(_summaryTile(Icons.people_outline, 'Yield', _recipe!.servingsLabel));
-    }
+    final items = <Widget>[
+      if (recipe.type != 'recipe') _typeBadge(_typeLabel(recipe.type)),
+      Text(_cuisineLabel(recipe.cuisine), style: metaTextStyle),
+      if (recipe.cookingMethods.isNotEmpty)
+        Text(recipe.methodLabel, style: metaTextStyle),
+      DifficultyBadge(effortLevel: recipe.effortLevel),
+      if (recipe.hasTiming) _metaIconText(Icons.timer_outlined, recipe.timingLabel),
+      if (recipe.hasServings) _metaIconText(Icons.people_outline, recipe.servingsLabel),
+      if (recipe.cookCount > 0) _metaIconText(Icons.restaurant, '${recipe.cookCount}회 조리'),
+    ];
 
-    return Column(
-      children: items
-          .map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: item,
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _summaryTile(IconData icon, String label, String value) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey.shade700),
-          const SizedBox(width: 10),
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Expanded(child: Text(value)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoChips() {
     return Wrap(
-      spacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 12,
       runSpacing: 8,
+      children: items,
+    );
+  }
+
+  Widget _metaIconText(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Chip(
-          label: Text('Type: ${_recipe!.type}'),
-          avatar: const Icon(Icons.category, size: 18),
+        Icon(icon, size: 15, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
         ),
-        Chip(
-          label: Text('Cuisine: ${_recipe!.cuisine}'),
-          avatar: const Icon(Icons.public, size: 18),
-        ),
-        if (_recipe!.categories.isNotEmpty)
-          ...(_recipe!.categories.map((cat) => Chip(
-            label: Text(cat),
-            avatar: const Icon(Icons.local_dining, size: 18),
-          ))),
-        if (_recipe!.tags.isNotEmpty)
-          ...(_recipe!.tags.map((tag) => Chip(
-            label: Text(tag),
-            avatar: const Icon(Icons.label, size: 18),
-          ))),
-        if (_recipe!.cookingMethods.isNotEmpty)
-          ...(_recipe!.cookingMethods.map((method) => Chip(
-            label: Text(method),
-            avatar: const Icon(Icons.restaurant_menu, size: 18),
-          ))),
-        if (_recipe!.hasTiming)
-          Chip(
-            label: Text(_recipe!.timingLabel),
-            avatar: const Icon(Icons.timer_outlined, size: 18),
-          ),
-        if (_recipe!.hasServings)
-          Chip(
-            label: Text(_recipe!.servingsLabel),
-            avatar: const Icon(Icons.people_outline, size: 18),
-          ),
-        Chip(
-          label: Text('Difficulty: ${_recipe!.effortLevel == 1 ? "Very Simple" : _recipe!.effortLevel == 2 ? "Simple" : _recipe!.effortLevel == 3 ? "Moderate" : _recipe!.effortLevel == 4 ? "Complex" : "Very Complex"} (${_recipe!.effortLevel}/5)'),
-          avatar: const Icon(Icons.trending_up, size: 18),
-        ),
-        if (_recipe!.cookCount > 0)
-          Chip(
-            label: Text('Cooked ${_recipe!.cookCount}x'),
-            avatar: const Icon(Icons.restaurant, size: 18),
-          ),
       ],
+    );
+  }
+
+  Widget _typeBadge(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+
+  String _typeLabel(String type) {
+    switch (type) {
+      case 'sauce':
+        return '소스';
+      case 'pickle':
+        return '절임';
+      case 'base':
+        return '베이스';
+      default:
+        return '기타';
+    }
+  }
+
+  String _cuisineLabel(String cuisine) {
+    switch (cuisine) {
+      case 'korean':
+        return '한식';
+      case 'chinese':
+        return '중식';
+      case 'italian':
+        return '이탈리아';
+      case 'french':
+        return '프렌치';
+      case 'sauce':
+        return '소스';
+      default:
+        return '기타';
+    }
+  }
+
+  /// Categories and tags as distinct, labeled chip rows (separate from the
+  /// cuisine/method/difficulty meta line above) so each kind of metadata
+  /// reads as its own group instead of one undifferentiated chip wall.
+  Widget _buildTagSection() {
+    final recipe = _recipe!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        ...recipe.categories.map(
+          (category) => _tagChip(
+            category,
+            background: colorScheme.primaryContainer,
+            foreground: colorScheme.onPrimaryContainer,
+          ),
+        ),
+        ...recipe.tags.map(
+          (tag) => _tagChip(
+            tag,
+            background: colorScheme.primary.withOpacity(0.07),
+            foreground: colorScheme.onSurface.withOpacity(0.75),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tagChip(String label, {required Color background, required Color foreground}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(AppTheme.chipRadius),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: foreground),
+      ),
     );
   }
 
