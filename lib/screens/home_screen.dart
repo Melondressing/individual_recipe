@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'cooking_logs_screen.dart';
+import 'ingredient_stats_screen.dart';
 import 'recipe_edit_screen.dart';
 import 'recipe_detail_screen.dart';
 import 'recipe_pack_import_screen.dart';
@@ -188,6 +189,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ShoppingListScreen()),
+            );
+          },
+        ),
+        ActionChip(
+          avatar: const Icon(Icons.bar_chart, size: 18),
+          label: const Text('재료 통계'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const IngredientStatsScreen()),
             );
           },
         ),

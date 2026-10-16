@@ -17,6 +17,7 @@ A personal offline recipe manager built with Flutter. 📱 Create, search, and t
 - **Responsive Design**: Works on Android, iOS, macOS, Windows, Linux, and Web
 - **Customizable Appearance**: Choose from 3 color palettes (Warm Brown, Cool Blue, Teal Green) + Dark Mode support
 - **Google Fonts**: Beautiful typography with Inter font family
+- **Ingredient Statistics**: Ranked view of your most-used ingredients across all recipes, alias-aware
 
 ## Current direction
 
@@ -27,6 +28,12 @@ A personal offline recipe manager built with Flutter. 📱 Create, search, and t
 - Mobile storage: SQLite via sqflite
 - Firebase: intentionally removed
 - Future hosting target: Cloudflare Pages for the Flutter web build
+
+## Version 1.4.0 (Ingredient Statistics)
+
+- **Ingredient Statistics**: New screen ranking ingredients by how many recipes use them, grouped with existing ingredient aliases so variant names (e.g., "미림" / "맛술") count as one entry.
+- Each entry shows a usage count and a proportional bar, sorted from most- to least-used, top 15 shown.
+- Reachable from Home's quick actions and from Settings → Data Management.
 
 ## Version 1.3.0 (Shopping List)
 

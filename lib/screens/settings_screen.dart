@@ -12,6 +12,7 @@ import '../providers/recipe_provider.dart';
 import '../theme/app_theme.dart';
 import 'alias_management_screen.dart';
 import 'cooking_logs_screen.dart';
+import 'ingredient_stats_screen.dart';
 import 'recipe_pack_import_screen.dart';
 import 'shopping_list_screen.dart';
 import 'storage_test_screen.dart';
@@ -190,6 +191,18 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('재료별 통계'),
+            subtitle: const Text('가장 많이 사용된 재료 보기'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const IngredientStatsScreen()),
+              );
+            },
+          ),
           if (kIsWeb)
             ListTile(
               leading: const Icon(Icons.bug_report),
@@ -266,7 +279,7 @@ class SettingsScreen extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.info),
             title: Text('Version'),
-            subtitle: Text('1.3.0 Shopping list'),
+            subtitle: Text('1.4.0 Shopping list & ingredient stats'),
           ),
           const ListTile(
             leading: Icon(Icons.description),
