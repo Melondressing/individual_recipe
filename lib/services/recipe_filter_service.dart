@@ -1,3 +1,4 @@
+import '../models/ingredient_alias.dart';
 import '../models/recipe.dart';
 
 /// Pure filtering, grouping, counting and sorting logic for recipes.
@@ -43,15 +44,32 @@ class RecipeFilterService {
     }
   }
 
-  static List<Recipe> search(List<Recipe> recipes, String query) {
-    final tokens = query
-        .trim()
-        .toLowerCase()
+  /// [aliases] lets a search term also match recipes written with a
+  /// synonym (e.g. searching "맛술" also finds recipes that only say
+  /// "미림", and vice versa) via Settings > Manage Aliases. Each token is
+  /// matched against the recipe if the token itself OR any of its known
+  /// synonyms is found; tokens are still combined with AND.
+  static List<Recipe> search(
+    List<Recipe> recipes,
+    String query, {
+    List<IngredientAlias> aliases = const [],
+  }) {
+    final normalizedQuery = query.trim().toLowerCase();
+    final tokens = normalizedQuery
         .split(RegExp(r'\s+'))
         .where((token) => token.isNotEmpty)
         .toList();
 
     if (tokens.isEmpty) return List<Recipe>.from(recipes);
+
+    // An alias pair can itself be a multi-word phrase (e.g. "두반장" <->
+    // "중국 매운 콩된장"). If the whole query matches one side of such a
+    // pair, treat it as a single unit instead of AND-ing its words apart,
+    // or the phrase would never match the token-by-token loop below.
+    final wholeQuerySynonyms = _expandToken(normalizedQuery, aliases);
+    final tokenSynonyms = wholeQuerySynonyms.length > 1
+        ? [wholeQuerySynonyms]
+        : tokens.map((token) => _expandToken(token, aliases)).toList();
 
     return recipes.where((recipe) {
       final text = [
@@ -67,9 +85,33 @@ class RecipeFilterService {
         ...recipe.notes,
       ].join(' ').toLowerCase();
 
-      // AND search: "pork sauce" should return recipes containing both words.
-      return tokens.every(text.contains);
+      // AND search across tokens: "pork sauce" needs both words.
+      // Within one token's synonym set, any match (OR) counts.
+      return tokenSynonyms.every((synonyms) => synonyms.any(text.contains));
     }).toList();
+  }
+
+  /// Returns the token plus every alias/canonical term that shares a
+  /// mapping with it (the same lookup the alias table is built for).
+  static Set<String> _expandToken(String token, List<IngredientAlias> aliases) {
+    final matchedCanonicals = <String>{};
+    for (final entry in aliases) {
+      final alias = entry.alias.toLowerCase();
+      final canonical = entry.canonical.toLowerCase();
+      if (alias == token || canonical == token) {
+        matchedCanonicals.add(canonical);
+      }
+    }
+
+    if (matchedCanonicals.isEmpty) return {token};
+
+    final expanded = <String>{token, ...matchedCanonicals};
+    for (final entry in aliases) {
+      if (matchedCanonicals.contains(entry.canonical.toLowerCase())) {
+        expanded.add(entry.alias.toLowerCase());
+      }
+    }
+    return expanded;
   }
 
   static bool matchesCuisine(Recipe recipe, String cuisine) {

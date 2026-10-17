@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:individual_recipe/models/ingredient_alias.dart';
 import 'package:individual_recipe/models/recipe.dart';
 import 'package:individual_recipe/services/recipe_filter_service.dart';
 
@@ -94,4 +95,61 @@ void main() {
     expect(recipe.cookingMethods, contains('볶기'));
   });
 
+  test('Search matches a known ingredient alias in either direction', () {
+    final now = DateTime(2026, 4, 25).millisecondsSinceEpoch;
+    final recipes = [
+      Recipe(
+        id: 'r1',
+        name: '불고기',
+        ingredients: const ['미림 1큰술', '간장 2큰술'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Recipe(
+        id: 'r2',
+        name: '잡채',
+        ingredients: const ['맛술 1큰술'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Recipe(
+        id: 'r3',
+        name: '된장찌개',
+        ingredients: const ['된장 1큰술'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ];
+    final aliases = [
+      IngredientAlias(id: 'a1', alias: '미림', canonical: '맛술'),
+    ];
+
+    final byCanonical = RecipeFilterService.search(recipes, '맛술', aliases: aliases);
+    expect(byCanonical.map((r) => r.id).toSet(), {'r1', 'r2'});
+
+    final byAlias = RecipeFilterService.search(recipes, '미림', aliases: aliases);
+    expect(byAlias.map((r) => r.id).toSet(), {'r1', 'r2'});
+
+    final withoutAliasTable = RecipeFilterService.search(recipes, '맛술');
+    expect(withoutAliasTable.map((r) => r.id), ['r2']);
+  });
+
+  test('Search matches a multi-word alias phrase as a single unit', () {
+    final now = DateTime(2026, 4, 25).millisecondsSinceEpoch;
+    final recipes = [
+      Recipe(
+        id: 'mapo',
+        name: '마파두부',
+        ingredients: const ['두반장 1.5큰술'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ];
+    final aliases = [
+      IngredientAlias(id: 'a1', alias: '두반장', canonical: '중국 매운 콩된장'),
+    ];
+
+    final results = RecipeFilterService.search(recipes, '중국 매운 콩된장', aliases: aliases);
+    expect(results.map((r) => r.id), ['mapo']);
+  });
 }

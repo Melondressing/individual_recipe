@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/recipe.dart';
+import '../providers/alias_provider.dart';
 import '../providers/recipe_provider.dart';
 import '../services/recipe_filter_service.dart';
 import '../widgets/recipe_card.dart';
@@ -40,8 +41,13 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(title: const Text('전체 레시피')),
       body: Consumer<RecipeProvider>(
         builder: (context, provider, child) {
+          final aliases = context.watch<AliasProvider>().aliases;
           final query = _searchController.text.trim();
-          final searched = RecipeFilterService.search(provider.allRecipes, query);
+          final searched = RecipeFilterService.search(
+            provider.allRecipes,
+            query,
+            aliases: aliases,
+          );
           final counts = RecipeFilterService.countByCuisine(searched);
           final filtered = RecipeFilterService.filterByCuisine(searched, _selectedCuisine);
           RecipeFilterService.sort(filtered, _sortBy);
